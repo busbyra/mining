@@ -15,37 +15,37 @@ class Drone:
         self.capacity = 10
         self.location = dict()
         self.xy = list()
-
+        self.mined = 0
 
     def action(self, context):
-        #self.location.append((context.x, context.y))
-        #print("LOC:", self.location)
-        #print("COORD: {},{}".format(context.x ,context.y))
-        #print("Zerg ID:",self, "BEEP:", vars(context))
-        #print("CONTEXT:", vars(context).keys())
         self.location[tuple((context.x, context.y-1))] = vars(context)['south']
         self.location[tuple((context.x, context.y+1))] = vars(context)['north']
         self.location[tuple((context.x+1, context.y))] = vars(context)['east']
         self.location[tuple((context.x-1, context.y))] = vars(context)['west']
         self.xy.append(tuple((context.x, context.y)))
-        print(self, "XY", self.xy)
-        print("Location", self.location)
-        for k,v in context.__dict__.items():
-            if v == '*':
-                print("Mineral to the", k.upper())
-                return str(k.upper())
+        if self.mined != 10:
+            for k,v in context.__dict__.items():
+                if v == '*':
+                    check = k.upper()
+                    self.mined += 1
+                    print("CHECK", self.mined)
+                    return check
+            new = randint(0, 3)
+            if new == 0:
+                return 'NORTH'
+            elif new == 1:
+                return 'SOUTH'
+            elif new == 2:
+                return 'EAST'
+            elif new == 3:
+                return 'WEST'
             else:
-                new = randint(0, 3)
-                if new == 0:
-                    return 'NORTH'
-                elif new == 1:
-                    return 'SOUTH'
-                elif new == 2:
-                    return 'EAST'
-                elif new == 3:
-                    return 'WEST'
-                else:
-                    return 'CENTER'
+                return check
+        else:
+            for k,v in context.__dict__.items():
+                if v == '_':
+                    return k
+
 
     
     def get_init_cost(self):
@@ -61,7 +61,7 @@ class Overlord:
         self.zerg = {}
         #self.tracker = list()
         self.refined_minerals = refined_minerals
-
+        self.total_ticks = total_ticks
         for _ in range(6):
             z = Drone()
             self.zerg[id(z)] = z
@@ -73,22 +73,14 @@ class Overlord:
 
     def action(self):
         act = randint(0, 3)
-        if act == 0:
+        self.total_ticks -= 1
+        print("Fingers", self.total_ticks)
+        if self.total_ticks <= 10:
+            return 'RETURN {}'.format(choice(list(self.zerg.keys())))
+        elif act == 0:
             return 'RETURN {}'.format(choice(list(self.zerg.keys())))
         elif act == 1 or act ==2:
             return 'DEPLOY {} {}'.format(choice(list(self.zerg.keys())),
                     choice(list(self.maps.keys())))
         else:
             return 'NONE'
-
-o = Overlord(4)
-
-test = o.zerg
-for i  in o.zerg.keys():
-    print(i, o.zerg[i].health, o.zerg[i].moves, o.zerg[i].capacity)
-
-print("TEST", o.zerg[i].location)
-
-#zerg_locations = { n: None for n in Overlord.zerg }
-#print("LOCATIONS: ", zerg_locations)
-
