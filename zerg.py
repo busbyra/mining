@@ -13,26 +13,39 @@ class Drone:
         self.health = 40 
         self.moves = 1
         self.capacity = 10
-        self.location = list()
+        self.location = dict()
+        self.xy = list()
 
 
     def action(self, context):
-        self.location.append((context.x, context.y))
-        print("LOC:", self.location)
-        print("COORD: {},{}".format(context.x ,context.y))
-        print("Zerg ID:",self, "BEEP:", vars(context))
-        print("CONTEXT:", context)
-        new = randint(0, 3)
-        if new == 0:
-            return 'NORTH'
-        elif new == 1:
-            return 'SOUTH'
-        elif new == 2:
-            return 'EAST'
-        elif new == 3:
-            return 'WEST'
-        else:
-            return 'CENTER'
+        #self.location.append((context.x, context.y))
+        #print("LOC:", self.location)
+        #print("COORD: {},{}".format(context.x ,context.y))
+        #print("Zerg ID:",self, "BEEP:", vars(context))
+        #print("CONTEXT:", vars(context).keys())
+        self.location[tuple((context.x, context.y-1))] = vars(context)['south']
+        self.location[tuple((context.x, context.y+1))] = vars(context)['north']
+        self.location[tuple((context.x+1, context.y))] = vars(context)['east']
+        self.location[tuple((context.x-1, context.y))] = vars(context)['west']
+        self.xy.append(tuple((context.x, context.y)))
+        print(self, "XY", self.xy)
+        print("Location", self.location)
+        for k,v in context.__dict__.items():
+            if v == '*':
+                print("Mineral to the", k.upper())
+                return str(k.upper())
+            else:
+                new = randint(0, 3)
+                if new == 0:
+                    return 'NORTH'
+                elif new == 1:
+                    return 'SOUTH'
+                elif new == 2:
+                    return 'EAST'
+                elif new == 3:
+                    return 'WEST'
+                else:
+                    return 'CENTER'
 
     
     def get_init_cost(self):
@@ -74,7 +87,7 @@ test = o.zerg
 for i  in o.zerg.keys():
     print(i, o.zerg[i].health, o.zerg[i].moves, o.zerg[i].capacity)
 
-print(o.maps)
+print("TEST", o.zerg[i].location)
 
 #zerg_locations = { n: None for n in Overlord.zerg }
 #print("LOCATIONS: ", zerg_locations)
