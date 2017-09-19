@@ -3,12 +3,11 @@
 DOCSTRING HERE
 """
 from collections import defaultdict
-
-
 from random import randint, choice
+from implementation import a_star_search
 
 
-
+print("Ape", vars(a_star_search))
 class Drone:
     def __init__(self):
         self.health = 40 
@@ -17,16 +16,19 @@ class Drone:
         self.location = dict()
         self.xy = tuple()
         self.mined = 0
+        self.steps = 0
         self.getme = False
         self.home = tuple()
         self.sets = set()
 
     def action(self, context):
+
         self.location[tuple((context.x, context.y-1))] = vars(context)['south']
         self.location[tuple((context.x, context.y+1))] = vars(context)['north']
         self.location[tuple((context.x+1, context.y))] = vars(context)['east']
         self.location[tuple((context.x-1, context.y))] = vars(context)['west']
         self.xy = (tuple((context.x, context.y)))
+        #a_star_search(context, self.xy, '*')
         self.sets.add(tuple((context.x, context.y)))
         print("Sets:", self.sets)
         print("Location",self.xy)
@@ -35,21 +37,25 @@ class Drone:
                 self.home = k
         if self.mined == 10:
             self.getme = True
-            print("HOME: ",self.home)
             for k,v in context.__dict__.items():
                 if v == '_':
                     return k.upper()
                 else:
                     if self.xy == self.home:
+                        print("HOME")
                         return 'CENTER'
                     new = randint(0, 3)
                     if new == 0:
+                        self.steps += 1
                         return 'NORTH'
                     elif new == 1:
+                        self.steps += 1
                         return 'SOUTH'
                     elif new == 2:
+                        self.steps += 1
                         return 'EAST'
                     elif new == 3:
+                        self.steps += 1
                         return 'WEST'
                     else:
                         return 'CENTER'
@@ -92,6 +98,7 @@ class Overlord:
     def __init__(self, total_ticks, refined_minerals=54):
         self.maps = {}
         self.zerg = {}
+        self.deployedzerg = {}
         self.refined_minerals = refined_minerals
         self.total_ticks = total_ticks
         
@@ -103,7 +110,6 @@ class Overlord:
 
     def add_map(self, map_id, summary):
         self.maps[map_id] = summary
-
     def action(self):
         act = randint(0, 3)
         self.total_ticks -= 1
@@ -117,8 +123,12 @@ class Overlord:
         elif act == 0:
             return 'RETURN {}'.format(choice(list(self.zerg.keys())))
         elif act == 1 or act == 2:
+            check = choice(list(self.zerg.keys()))
+
+            print("Dep Check", self.zerg[check].mined)
             return 'DEPLOY {} {}'.format(choice(list(self.zerg.keys())),
                     choice(list(self.maps.keys())))
+            
         else:
             return 'NONE'
 
