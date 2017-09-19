@@ -2,6 +2,7 @@
 """
 DOCSTRING HERE
 """
+from collections import defaultdict
 
 
 from random import randint, choice
@@ -14,17 +15,45 @@ class Drone:
         self.moves = 1
         self.capacity = 10
         self.location = dict()
-        self.xy = list()
+        self.xy = tuple()
         self.mined = 0
         self.getme = False
+        self.home = tuple()
+        self.sets = set()
 
     def action(self, context):
         self.location[tuple((context.x, context.y-1))] = vars(context)['south']
         self.location[tuple((context.x, context.y+1))] = vars(context)['north']
         self.location[tuple((context.x+1, context.y))] = vars(context)['east']
         self.location[tuple((context.x-1, context.y))] = vars(context)['west']
-        self.xy.append(tuple((context.x, context.y)))
-        if self.mined != 10:
+        self.xy = (tuple((context.x, context.y)))
+        self.sets.add(tuple((context.x, context.y)))
+        print("Sets:", self.sets)
+        print("Location",self.xy)
+        for k, v in self.location.items():
+            if v == '_':
+                self.home = k
+        if self.mined == 10:
+            self.getme = True
+            print("HOME: ",self.home)
+            for k,v in context.__dict__.items():
+                if v == '_':
+                    return k.upper()
+                else:
+                    if self.xy == self.home:
+                        return 'CENTER'
+                    new = randint(0, 3)
+                    if new == 0:
+                        return 'NORTH'
+                    elif new == 1:
+                        return 'SOUTH'
+                    elif new == 2:
+                        return 'EAST'
+                    elif new == 3:
+                        return 'WEST'
+                    else:
+                        return 'CENTER'
+        else:
             for k,v in context.__dict__.items():
                 if v == '*':
                     check = k.upper()
@@ -32,6 +61,7 @@ class Drone:
                     print("CHECK", self.mined)
                     return check
             new = randint(0, 3)
+            print("Random: ", new)
             if new == 0:
                 return 'NORTH'
             elif new == 1:
@@ -42,12 +72,12 @@ class Drone:
                 return 'WEST'
             else:
                 return check
-        else:
-            self.getme = True
-            print(self.mined,"GET ME!")
-            for k,v in context.__dict__.items():
-                if v == '_':
-                    return k
+        #elif self.mined == 10:
+         #   self.getme = True
+            # Hunt for home
+          #  for k,v in context.__dict__.items():
+           #     if v == '_':
+            #        return k.upper()
 
 
     
@@ -62,7 +92,6 @@ class Overlord:
     def __init__(self, total_ticks, refined_minerals=54):
         self.maps = {}
         self.zerg = {}
-        #self.tracker = list()
         self.refined_minerals = refined_minerals
         self.total_ticks = total_ticks
         
@@ -78,11 +107,14 @@ class Overlord:
     def action(self):
         act = randint(0, 3)
         self.total_ticks -= 1
+        for i in self.zerg.keys():
+            if self.zerg[i].getme == True:
+                return 'RETURN {}'.format(choice(list(self.zerg.keys())))    
         if self.total_ticks <= 10:
-            for i in self.zerg.keys():
-                print("Rope", self.zerg[i].getme)
+            #for i in self.zerg.keys():
+            #    print("Rope", self.zerg[i].getme)
             return 'RETURN {}'.format(choice(list(self.zerg.keys())))
-        elif act == 0 or act == 3:
+        elif act == 0:
             return 'RETURN {}'.format(choice(list(self.zerg.keys())))
         elif act == 1 or act == 2:
             return 'DEPLOY {} {}'.format(choice(list(self.zerg.keys())),
@@ -90,12 +122,3 @@ class Overlord:
         else:
             return 'NONE'
 
-
-
-
-o = Overlord(4)
-
-test = o.zerg
-
-for i in test.keys():
-    print("Get Me", o.zerg[i].getme)
