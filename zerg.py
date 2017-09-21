@@ -6,8 +6,6 @@ from collections import defaultdict
 from random import randint, choice
 from implementation import a_star_search
 
-
-print("Ape", vars(a_star_search))
 class Drone:
     def __init__(self):
         self.health = 40 
@@ -22,16 +20,26 @@ class Drone:
         self.sets = set()
 
     def action(self, context):
-
+        # Push this off to a map class or something
         self.location[tuple((context.x, context.y-1))] = vars(context)['south']
         self.location[tuple((context.x, context.y+1))] = vars(context)['north']
         self.location[tuple((context.x+1, context.y))] = vars(context)['east']
         self.location[tuple((context.x-1, context.y))] = vars(context)['west']
         self.xy = (tuple((context.x, context.y)))
-        #a_star_search(context, self.xy, '*')
+        #a_star_search(context, self.xy, '*') # Might use this for pathfinding
         self.sets.add(tuple((context.x, context.y)))
-        print("Sets:", self.sets)
-        print("Location",self.xy)
+        map_keys = list(self.location)
+        minx = min(map_keys)[0]
+        maxx = max(map_keys)[0]
+        miny = min(map_keys, key=lambda atuple:atuple[1])[1]
+        maxy = max(map_keys, key=lambda atuple:atuple[1])[1]
+        dbc=Dashboard()
+        dbc.maps(self.location)
+        for x in range(minx, maxx + 1):
+            for y in range(miny, maxy + 1):
+                print(self.location.get(tuple((x,y)),"@"), end="")
+            print()
+
         for k, v in self.location.items():
             if v == '_':
                 self.home = k
@@ -64,18 +72,29 @@ class Drone:
                 if v == '*':
                     check = k.upper()
                     self.mined += 1
-                    print("CHECK", self.mined)
                     return check
             new = randint(0, 3)
-            print("Random: ", new)
             if new == 0:
-                return 'NORTH'
+                if self.location[tuple((context.x, context.y+1))] != '#':
+                    return 'NORTH'
+                else:
+                    new = randint(0,3)
             elif new == 1:
-                return 'SOUTH'
+                if self.location[tuple((context.x, context.y-1))] != '#':
+                    new = randint(0,3)
+                    return 'SOUTH'
+                else:
+                    new = randint(0,3)
             elif new == 2:
-                return 'EAST'
+                if self.location[tuple((context.x+1, context.y))] != '#':
+                    return 'EAST'
+                else:
+                    new = randint(0,3)
             elif new == 3:
-                return 'WEST'
+                if self.location[tuple((context.x-1, context.y))] != '#':
+                    return 'WEST'
+                else:
+                    new = randint(0,3)
             else:
                 return check
         #elif self.mined == 10:
@@ -86,7 +105,6 @@ class Drone:
             #        return k.upper()
 
 
-    
     def get_init_cost(self):
         pass
         # 10 health = 1 mineral
@@ -110,17 +128,16 @@ class Overlord:
 
     def add_map(self, map_id, summary):
         self.maps[map_id] = summary
+        print("O Maps",self.maps)
     def action(self):
+        if self.total_ticks < 10:
+            return 'RETURN {}'.format(choice(list(self.zerg.keys())))
         act = randint(0, 3)
         self.total_ticks -= 1
         for i in self.zerg.keys():
             if self.zerg[i].getme == True:
                 return 'RETURN {}'.format(choice(list(self.zerg.keys())))    
-        if self.total_ticks <= 10:
-            #for i in self.zerg.keys():
-            #    print("Rope", self.zerg[i].getme)
-            return 'RETURN {}'.format(choice(list(self.zerg.keys())))
-        elif act == 0:
+        if act == 0:
             return 'RETURN {}'.format(choice(list(self.zerg.keys())))
         elif act == 1 or act == 2:
             check = choice(list(self.zerg.keys()))
@@ -128,7 +145,17 @@ class Overlord:
             print("Dep Check", self.zerg[check].mined)
             return 'DEPLOY {} {}'.format(choice(list(self.zerg.keys())),
                     choice(list(self.maps.keys())))
-            
         else:
             return 'NONE'
+
+
+class Dashboard():
+    """I don't know"""
+    
+    def __init__(self):
+        pass
+    def maps(self, info):
+        self.maps = info
+        return self.maps
+
 

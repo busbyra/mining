@@ -5,7 +5,7 @@ from map_with_debugs import Map
 from sys import argv
 import zerg
 
-TICKS = 50
+TICKS = 100
 refresh_delay = 0.0 # number should represent seconds
 try:
     if len(argv) > 1 and argv[1].startswith("-refresh"):
@@ -70,4 +70,4 @@ for _ in range(TICKS):
 #    os.system('cls' if os.name == 'nt' else 'clear')
 
 print("Total mined:", mined)
-print("Refined Minerals", overlord.refined_minerals)
+print("Refined Minerals:", overlord.refined_minerals)
