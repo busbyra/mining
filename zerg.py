@@ -1,14 +1,23 @@
 #!/usr/bin/env python3
 """
-DOCSTRING HERE
+This is the biomass that the Zerg come from.  When the hive is ready to deploy
+their Zerg somewhere on a planet, they reference this module for basic
+Overlord and Drone processes.
+
+Further analysis is needed to determine how they deploy their more combat
+oriented units.
 """
 from collections import defaultdict
 from random import randint, choice
 
 class Zerg:
+    """ This is the basic parent class that all Zerg come from.  This should
+    have been where a lot of the default information was stored about every
+    zerg.
+    """
     pass
 
-class Drone:
+class Drone(Zerg):
     def __init__(self):
         self.health = 40 
         self.moves = 1
