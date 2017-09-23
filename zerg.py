@@ -7,8 +7,8 @@ Overlord and Drone processes.
 Further analysis is needed to determine how they deploy their more combat
 oriented units.
 """
-from collections import defaultdict
 from random import randint, choice
+
 
 class Zerg:
     """ This is the basic parent class that all Zerg come from.  This should
@@ -17,9 +17,12 @@ class Zerg:
     """
     pass
 
+
 class Drone(Zerg):
+    """Base Drone class type.
+    """
     def __init__(self):
-        self.health = 40 
+        self.health = 40
         self.moves = 1
         self.capacity = 10
         self.location = dict()
@@ -28,11 +31,11 @@ class Drone(Zerg):
         self.step = 0
         self.getme = False
         self.home = tuple()
-    
+
     def steps(self):
         """Returns the total steps used from the Zergs."""
         return self.step
-    
+
     def action(self, context):
         """
         This runs through and updates a personal map for each Zerg.
@@ -45,25 +48,25 @@ class Drone(Zerg):
         self.location[tuple((context.x+1, context.y))] = vars(context)['east']
         self.location[tuple((context.x-1, context.y))] = vars(context)['west']
         self.xy = (tuple((context.x, context.y)))
-        #I got the following from following Dave's example
+        # I got the following from following Dave's example
         map_keys = list(self.location)
         minx = min(map_keys)[0]
         maxx = max(map_keys)[0]
-        miny = min(map_keys, key=lambda atuple:atuple[1])[1]
-        maxy = max(map_keys, key=lambda atuple:atuple[1])[1]
+        miny = min(map_keys, key=lambda atuple: atuple[1])[1]
+        maxy = max(map_keys, key=lambda atuple: atuple[1])[1]
         for x in range(minx, maxx + 1):
             for y in range(miny, maxy + 1):
-                print(self.location.get(tuple((x,y)),"@"), end="")
+                print(self.location.get(tuple((x, y)), "@"), end="")
             print()
 
-        for k, v in self.location.items():
-            if v == '_':
-                self.home = k
+        for key, value in self.location.items():
+            if value == '_':
+                self.home = key
         if self.mined == 10:
             self.getme = True
-            for k,v in context.__dict__.items():
-                if v == '_':
-                    return k.upper()
+            for key, value in context.__dict__.items():
+                if value == '_':
+                    return key.upper()
                 else:
                     if self.xy == self.home:
                         print("HOME")
@@ -84,36 +87,40 @@ class Drone(Zerg):
                     else:
                         return 'CENTER'
         else:
-            for k,v in context.__dict__.items():
-                if v == '*':
-                    check = k.upper()
+            for key, value in context.__dict__.items():
+                if value == '*':
+                    check = key.upper()
                     self.mined += 1
                     return check
             new = randint(0, 3)
             if new == 0:
                 if self.location[tuple((context.x, context.y + 1))] != '#'\
-                and self.location[tuple((context.x, context.y + 1))] != '~':
-                        return 'NORTH'
+                        and self.location[tuple((context.x, context.y + 1))]\
+                        != '~':
+                    return 'NORTH'
                 else:
-                    new = randint(0,3)
+                    new = randint(0, 3)
             elif new == 1:
                 if self.location[tuple((context.x, context.y - 1))] != '#'\
-                and self.location[tuple((context.x, context.y - 1))] != '~':
-                        return 'SOUTH'
+                        and self.location[tuple((context.x, context.y - 1))]\
+                        != '~':
+                    return 'SOUTH'
                 else:
-                    new = randint(0,3)
+                    new = randint(0, 3)
             elif new == 2:
                 if self.location[tuple((context.x + 1, context.y))] != '#'\
-                and self.location[tuple((context.x + 1, context.y))] != '~':
-                        return 'EAST'
+                        and self.location[tuple((context.x + 1, context.y))]\
+                        != '~':
+                    return 'EAST'
                 else:
-                    new = randint(0,3)
+                    new = randint(0, 3)
             elif new == 3:
                 if self.location[tuple((context.x - 1, context.y))] != '#'\
-                and self.location[tuple((context.x - 1, context.y))] != '~':
-                        return 'WEST'
+                        and self.location[tuple((context.x - 1, context.y))]\
+                        != '~':
+                    return 'WEST'
                 else:
-                    new = randint(0,3)
+                    new = randint(0, 3)
             else:
                 return check
 
@@ -123,22 +130,13 @@ class Drone(Zerg):
         """
         pass
 
+
 class Miner(Drone):
-    """Miner subclass of drone.
+    """Miner subclass of drone. Originally attempted to use super() to modify
+    the class to work correctly, but something was causing the drone to time
+    out, so I have gone back to having an empty Miner, sadly.
     """
-    def __init__(self):
-        """These stats should have been registered from the Drone or Zerg
-        classes.
-        """
-        self.health = 10
-        self.moves = 1
-        self.capacity = 25
-        self.location = dict()
-        self.xy = tuple()
-        self.mined = 0
-        self.step = 0
-        self.getme = False
-        self.home = tuple()
+    pass
 
 
 class Scout(Drone):
@@ -152,7 +150,7 @@ class Overlord(Zerg):
     """The Overlord class is used to control the drones and visualize the map
     in order to determine whether the map is worth mining.
     """
-    
+
     def __init__(self, ticks, refined_minerals):
         """ This holds all of the needed information for a given Overlord.
         """
@@ -161,13 +159,11 @@ class Overlord(Zerg):
         self.deployedzerg = {}
         self.refined_minerals = refined_minerals
         self.ticks = ticks
-        checks = self.maps
         self.dashboard = Dashboard.update
 
         for _ in range(6):
-            z = Miner()
-            self.zerg[id(z)] = z
-            # Change this to adjust based on the actual cost
+            ztype = Miner()
+            self.zerg[id(ztype)] = ztype
             self.refined_minerals -= 9
 
     def add_map(self, map_id, summary):
@@ -175,7 +171,7 @@ class Overlord(Zerg):
         to indicate the density of minerals in the area.
         """
         self.maps[map_id] = summary
-    
+
     def action(self):
         """The actions the Overlord takes. RETURN and DEPLOY are randomized
         at this time.
@@ -185,16 +181,14 @@ class Overlord(Zerg):
         act = randint(0, 3)
         self.ticks -= 1
         for i in self.zerg.keys():
-            if self.zerg[i].getme == True:
-                return 'RETURN {}'.format(choice(list(self.zerg.keys())))    
+            if self.zerg[i].getme is True:
+                return 'RETURN {}'.format(choice(list(self.zerg.keys())))
         if act == 0:
             return 'RETURN {}'.format(choice(list(self.zerg.keys())))
         elif act == 1 or act == 2:
-            check = choice(list(self.zerg.keys()))
             return 'DEPLOY {} {}'.format(choice(list(self.zerg.keys())),
-                    choice(list(self.maps.keys())))
-        else:
-            return 'NONE'
+                                         choice(list(self.maps.keys())))
+        return 'NONE'
 
 
 class Dashboard():
