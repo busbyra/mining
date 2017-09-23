@@ -1,0 +1,40 @@
+Name: Ryan Busby
+Date: 23 September 2017
+Current Module: Object Oriented Programming with Python
+Project Name: Mining
+Project Goals:
+
+Create the module to be used for the new Zerg Mining Expedition taking place in our sector  A few areas of focus:
+    * Ensure class Overlord(Zerg) is responsible for the instantiation and deployment of Drones.
+    * Make sure there are at least two sub-classes of Drone.
+
+Considerations:
+    * Drones have 1ms to complete their actions.
+    * Overlord has 1 second to complete its actions.
+    * All Zerg must possess health and an action that takes a map context as a parameter.
+    * Follow PEP8 standards.
+
+Initial Design:
+    The API framework was already in place when I received the project.  A few key things that I need to do is create a few sub-classes, a Dashboard class, and ensure that I am not putting too much into the Drone class.  Starting with the Zerg class, I intend to have all of the similarities between Overlord and Drones in place there, and then creating any differences (maps, action types, storage of zerg information) in the respective Zerg types.
+
+   Data Flow:
+    When the program calls on my API, my API will respond in accordance with how it was accessed.  If it is automated through world.py, the API will instantiate a specific number of Drones who will then go out and explore and mine the given map or maps as available.
+
+Communication Protocol:
+	The API will be imported into the given program.
+
+Potential Pitfalls:
+    * Focusing on one area for too long.
+    * Not taking the given program into consideration when designing the API.
+    * Incorrect information being returned to the user.
+
+Test Plan:
+    User Test:
+    The students have been given the program that the API will be used with in order to test their code as they develop.  Any time I have made appropriate changes to my code, I will run the given program with my API to ensure it works properly.
+Test Cases:
+	N/A
+
+Conclusion:
+    The program works adequately, but not completely.  I ran into a few roadblocks right at the end that I did not realize I had.  The biggest issue has been making the two different Drones instantiate properly.  I focused far too long on getting the Dashboard class working instead of making strides toward ensuring everything else ran smoothly.
+    
+    When executed, the drones will go out and mine minerals but will still occasionally attempt to run into a wall or acid.  I believe this is due to the way I was attempting to handle the x and y coordinates.  The Zerg's version of the map was rotated to the left.  When I attempted to adjust how they viewed the map to the left as well, it caused additional issues, including the Drone thinking it was outside of the map.  I ended up reverting back to how they initially viewed the map because at least this way, they usually tried to live and mine properly.
