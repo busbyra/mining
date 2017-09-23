@@ -1,0 +1,69 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage[latin1]{inputenc}
+
+\title{Zerg Mining Expedition}
+\author{Ryan Busby}
+\date{\today}
+
+\begin{document}
+\maketitle
+\begin{flushleft}
+Project Goals:
+\end{flushleft}
+Create the module to be used for the new Zerg Mining Expedition taking place in our sector  A few areas of focus:\par
+\begin{itemize}
+  \item Ensure class Overlord(Zerg) is responsible for the instantiation and deployment of Drones.
+  \item Make sure there are at least two sub-classes of Drone.
+\end{itemize}
+Considerations:
+\begin{itemize}
+  \item Drones have 1ms to complete their actions.
+  \item Overlord has 1 second to complete its actions.
+  \item All Zerg must possess health and an action that takes a map context as a parameter.
+  \item Follow PEP8 standards
+\end{itemize}
+Initial Design:
+
+The API framework was already in place when I received the project.  A few key things that I need to do is create a few sub-classes, a Dashboard class, and ensure that I am not putting too much into the Drone class.  Starting with the Zerg class, I intend to have all of the similarities between Overlord and Drones in place there, and then creating any differences (maps, action types, storage of zerg information) in the respective Zerg types.
+\newline
+\newline
+Data Flow:
+
+When the program calls on my API, my API will respond in accordance with how it was accessed.  If it is automated through world.py, the API will instantiate a specific number of Drones who will then go out and explore and mine the given map or maps as available.
+\newline
+\newline
+Communication Protocol:
+
+The API will be imported into the given program.
+\newline
+\newline
+Potential Pitfalls:
+\begin{itemize}
+  \item Focusing on one area for too long.
+  \item Not taking the given program into consideration when designing the API.
+  \item Incorrect information being returned to the user.
+\end{itemize}
+
+\begin{flushleft}
+Test Plan:
+\end{flushleft}
+User Test:
+
+The students have been given the program that the API will be used with in order to test their code as they develop.  Any time I have made appropriate changes to my code, I will run the given program with my API to ensure it works properly.
+\newline
+\newline
+Test Cases:
+
+None to report.
+\newline
+\newline
+Conclusion:
+The program works adequately, but not completely.  I ran into a few roadblocks right at the end that I did not realize I had.  The biggest issue has been making the two different Drones instantiate properly.  I focused far too long on getting the Dashboard class working instead of making strides toward ensuring everything else ran smoothly.
+\newline
+\newline
+When executed, the drones will go out and mine minerals but will still occasionally attempt to run into a wall or acid.  I believe this is due to the way I was attempting to handle the x and y coordinates.  The Zerg's version of the map was rotated to the left.  When I attempted to adjust how they viewed the map to the left as well, it caused additional issues, including the Drone thinking it was outside of the map.  I ended up reverting back to how they initially viewed the map because at least this way, they usually tried to live and mine properly.
+
+\end{document}
